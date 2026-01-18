@@ -1,5 +1,9 @@
 <template>
+      <Spinner :visible="isLoading" />
+
   <div class="dashboard-page">
+    <!-- Spinner appears when loading -->
+
     <div class="dashboard-container">
       <h1>{{ title }}</h1>
       <p class="subtitle">
@@ -28,24 +32,24 @@
           <input
             v-model="form.username"
             placeholder="Username"
-            :disabled="!canAdd && !canEdit && !editingUser"
+            :disabled="!props.canAdd && !props.canEdit && !editingUser"
           />
-        <div v-if="props.canAdd">
+
+          <div v-if="props.canAdd">
             <label>Roles:</label>
             <div class="roles-checkboxes">
-                <label v-for="role in allRoles" :key="role">
-                <input
-                    type="checkbox"
-                    :value="role"
-                    v-model="form.roles"
-                />
+              <label v-for="role in allRoles" :key="role">
+                <input type="checkbox" :value="role" v-model="form.roles" />
                 {{ role }}
-                </label>
+              </label>
             </div>
-        </div>
+          </div>
 
           <label>Status:</label>
-          <select v-model="form.status" :disabled="!canAdd && !canEdit && !editingUser">
+          <select
+            v-model="form.status"
+            :disabled="!props.canAdd && !props.canEdit && !editingUser"
+          >
             <option>Enabled</option>
             <option>Disabled</option>
             <option>Deleted</option>
@@ -57,71 +61,72 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue"
-import { useStore } from "vuex"
-import UsersTable from "./UsersTable.vue"
-import Modal from "./Modal.vue"
+import { ref, computed, onMounted } from "vue";
+import { useStore } from "vuex";
+import UsersTable from "./UsersTable.vue";
+import Modal from "./Modal.vue";
+import Spinner from "./Spinner.vue";
 
 const props = defineProps({
   title: { type: String, default: "Dashboard" },
   canAdd: { type: Boolean, default: false },
   canDelete: { type: Boolean, default: false },
   canEdit: { type: Boolean, default: false },
-  isAdmin: { type: Boolean, default: false },
+});
 
-})
+const store = useStore();
+const username = computed(() => store.state.user.username);
+const users = computed(() => store.getters["admin/users"]);
+const isLoading = computed(() => store.getters["admin/isLoading"]);
+const allRoles = ["User", "Editor", "Admin"];
 
-const store = useStore()
-const username = computed(() => store.state.user.username)
-const users = computed(() => store.getters["admin/users"])
-const allRoles = ["User", "Editor", "Admin"]
+const showModal = ref(false);
+const editingUser = ref(null);
+const form = ref({ username: "", roles: [], status: "Enabled" });
 
-const showModal = ref(false)
-const editingUser = ref(null)
-const form = ref({ username: "", roles: [], status: "Enabled" })
+// Fetch users on mounted
+onMounted(() => store.dispatch("admin/fetchUsers"));
 
-onMounted(() => store.dispatch("admin/fetchUsers"))
-
+// Modal functions
 const openAddModal = () => {
-  if (!props.canAdd) return
-  editingUser.value = null
-  form.value = { username: "", roles: ["User"], status: "Enabled" }
-  showModal.value = true
-}
+  if (!props.canAdd) return;
+  editingUser.value = null;
+  form.value = { username: "", roles: ["User"], status: "Enabled" };
+  showModal.value = true;
+};
 
 const openEditModal = (user) => {
-  editingUser.value = user
+  editingUser.value = user;
   form.value = {
     username: user.username,
     roles: [...user.roles],
     status: user.status,
-  }
-  showModal.value = true
-}
+  };
+  showModal.value = true;
+};
 
-const closeModal = () => (showModal.value = false)
+const closeModal = () => (showModal.value = false);
 
 const handleSubmit = async () => {
-  if (!form.value.username) return alert("Username is required")
+  if (!form.value.username) return alert("Username is required");
 
   if (editingUser.value) {
     await store.dispatch("admin/updateUser", {
       id: editingUser.value.id,
       data: { ...form.value },
-    })
+    });
   } else if (props.canAdd) {
-    await store.dispatch("admin/addUser", form.value)
+    await store.dispatch("admin/addUser", form.value);
   }
 
-  await store.dispatch("admin/fetchUsers")
-  closeModal()
-}
+  closeModal();
+};
 
 const handleDelete = (id) => {
-  if (!props.canDelete) return
-  if (!confirm("Are you sure?")) return
-  store.dispatch("admin/deleteUser", id)
-}
+  if (!props.canDelete) return;
+  if (!confirm("Are you sure?")) return;
+  store.dispatch("admin/deleteUser", id);
+};
 </script>
 
 <style scoped>
