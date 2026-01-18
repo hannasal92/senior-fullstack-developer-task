@@ -2,6 +2,9 @@
 import { UserStatus } from '../users.entity';
 
 export class LoginResponseDto {
+  // token(token: any) {
+  //   throw new Error('Method not implemented.');
+  // }
   access_token: string;
   id: number;
   username: string;
