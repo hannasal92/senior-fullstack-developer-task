@@ -50,13 +50,16 @@
         @close="closeModal"
         @confirm="handleSubmit"
       >
+        <div v-if="errorMsgUsername" class="error-box">
+          {{ errorMsgUsername }}
+        </div>
         <div class="modal-form">
           <input
             v-model="form.username"
             placeholder="Username"
             :disabled="!props.canAdd && !props.canEdit && !editingUser"
           />
-
+          
           <div v-if="props.canAdd">
             <label>Roles:</label>
             <div class="roles-checkboxes">
@@ -106,6 +109,8 @@ const showModal = ref(false);
 const editingUser = ref(null);
 const form = ref({ username: "", roles: [], status: "Enabled" });
 const errorMsg = ref(null);
+const errorMsgUsername = ref(null);
+
 // Pagination
 const currentPage = ref(1);
 const limit = 5;
@@ -139,10 +144,16 @@ const openEditModal = (user) => {
   showModal.value = true;
 };
 
-const closeModal = () => (showModal.value = false);
+const closeModal = () => {
+  showModal.value = false;
+  errorMsgUsername.value = "";
+};
 
 const handleSubmit = async () => {
-  if (!form.value.username) return alert("Username is required");
+  if (!form.value.username){
+    errorMsgUsername.value = "username required"
+    return;
+  }
   const curPage = currentPage.value ;
   try{
     if (editingUser.value) {
