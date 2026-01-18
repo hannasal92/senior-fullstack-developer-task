@@ -12,6 +12,7 @@ import {
   Param,
   Delete,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -57,25 +58,38 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async findAll(@Req() request): Promise<User[]> {
+  async findAll(
+    @Req() request,
+    @Query('page') page = 1,
+    @Query('limit') limit = 5,
+  ): Promise<{ users: User[]; total: number }> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access      
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       const currentUserId = request.user.id;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       const currentUserRoles: string[] = request.user.roles;
 
-      const users = await this.usersService.findAll();
+      const pageNumber = Number(page);
+      const pageSize = Number(limit);
 
-      return users.filter((user) => {
-        // Exclude self
+      const allUsers = await this.usersService.findAll();
+
+      const filteredUsers = allUsers.filter((user) => {
         if (user.id === currentUserId) return false;
-
-        // If current user is Admin, show all others
         if (currentUserRoles.includes('Admin')) return true;
-
-        // If current user is not Admin, exclude Admin users
         return !user.roles.includes('Admin');
       });
+
+      const total = filteredUsers.length;
+
+      const start = (pageNumber - 1) * pageSize;
+      const end = start + pageSize;
+      const paginatedUsers = filteredUsers.slice(start, end);
+
+      return {
+        users: paginatedUsers,
+        total,
+      };
     } catch (error) {
       this.logger.error('Failed to fetch users', error);
       throw new UnauthorizedException('Could not fetch users');

@@ -1,5 +1,5 @@
 <template>
-  <Dashboard title="Editor Dashboard" :canAdd="false" :canDelete="false" :isAdmin="false" />
+  <Dashboard title="Editor Dashboard" :canAdd="false" :canDelete="false" />
 </template>
 
 <script setup>

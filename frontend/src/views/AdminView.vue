@@ -1,5 +1,5 @@
 <template>
-  <Dashboard title="Admin Dashboard" :canAdd="true" :canDelete="true" :isAdmin="true" />
+  <Dashboard title="Admin Dashboard" :canAdd="true" :canDelete="true"/>
 </template>
 
 <script setup>

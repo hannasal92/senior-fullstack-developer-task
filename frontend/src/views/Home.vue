@@ -12,7 +12,8 @@ import { computed } from "vue"
 import { useStore } from "vuex"
 
 const store = useStore()
-const username = computed(() => store.state.user.username)
+// const username = computed(() => store.state.user.username)
+const username = computed(() => localStorage.getItem("username"))
 </script>
 
 <style scoped>
