@@ -1,4 +1,6 @@
 import { createStore } from "vuex"
+import user from "./user"
+import admin from "./admin"
 
 export default createStore({
 	state: {
@@ -15,5 +17,7 @@ export default createStore({
 	},
 	modules: {
 		// Define your modules here
+		user,
+		admin
 	},
 })

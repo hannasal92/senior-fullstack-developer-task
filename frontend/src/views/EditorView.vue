@@ -1,6 +1,7 @@
 <template>
-	<div>
-		<h1>Editors Page</h1>
-		<p>Welcome</p>
-	</div>
+  <Dashboard title="Editor Dashboard" :canAdd="false" :canDelete="false" :isAdmin="false" />
 </template>
+
+<script setup>
+import Dashboard from "../components/Dashboard.vue"
+</script>

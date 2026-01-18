@@ -1,6 +1,7 @@
 <template>
-	<div>
-		<h1>Admins Page</h1>
-		<p>Welcome</p>
-	</div>
+  <Dashboard title="Admin Dashboard" :canAdd="true" :canDelete="true" :isAdmin="true" />
 </template>
+
+<script setup>
+import Dashboard from "../components/Dashboard.vue"
+</script>
