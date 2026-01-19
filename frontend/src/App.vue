@@ -19,15 +19,12 @@ const store = useStore()
 const showNavbar = computed(() => route.path !== "/")
 
 const handleLogout = () => {
-  // 1️⃣ Clear Vuex user state
   store.dispatch("user/logout")
 
-  // 2️⃣ Clear localStorage (optional, if stored)
   localStorage.removeItem("token")
   localStorage.removeItem("username")
   localStorage.removeItem("roles")
-
-  // 3️⃣ Redirect to login page
+  store.dispatch("admin/clearPages")
   router.push("/")
 }
 </script>
